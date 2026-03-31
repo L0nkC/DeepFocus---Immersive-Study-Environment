@@ -1,5 +1,7 @@
 # DeepFocus - Immersive Study Environment
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-brightgreen?style=for-the-badge)](https://L0nkC.github.io/DeepFocus---Immersive-Study-Environment/)
+
 A Progressive Web App (PWA) that tracks true focus by detecting tab switching, window focus loss, and idle time. Transform your study sessions into immersive experiences with nature scenery and ambient sounds.
 
 ![DeepFocus Screenshot](./screenshot.png)
@@ -35,6 +37,9 @@ A Progressive Web App (PWA) that tracks true focus by detecting tab switching, w
 - **Google Fonts** - Manrope & Inter typography
 
 ## Getting Started
+
+### 🌐 Live Website
+**Access the app directly at: https://L0nkC.github.io/DeepFocus---Immersive-Study-Environment/**
 
 ### Local Development
 Simply open `index.html` in your browser:
