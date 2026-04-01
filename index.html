@@ -659,9 +659,10 @@
             const activeMinutes = Math.floor(elapsed / 60);
             const totalMinutes = Math.floor(state.totalTime / 60);
             
-            // Calculate integrity score based on interruptions
+            // Calculate integrity score based on completion rate and interruptions
+            const completionRate = totalMinutes > 0 ? (activeMinutes / totalMinutes) * 100 : 0;
             const penalty = state.interruptions * 5;
-            state.integrityScore = Math.max(0, 100 - penalty);
+            state.integrityScore = Math.max(0, Math.round(completionRate - penalty));
 
             // Update summary view
             document.getElementById('integrity-score').textContent = state.integrityScore;
