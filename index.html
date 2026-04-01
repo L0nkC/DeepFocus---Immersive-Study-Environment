@@ -529,14 +529,14 @@
 
         // Scenery data
         const sceneries = [
-            { id: 0, name: 'Forest Stream', icon: 'forest', image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80' },
-            { id: 1, name: 'Mountain Lake', icon: 'landscape', image: 'https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=1920&q=80' },
-            { id: 2, name: 'Ocean Waves', icon: 'waves', image: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1920&q=80' },
-            { id: 3, name: 'Rainy Window', icon: 'water_drop', image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=1920&q=80' },
-            { id: 4, name: 'Sunrise Meadow', icon: 'wb_sunny', image: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?w=1920&q=80' },
-            { id: 5, name: 'Night Campfire', icon: 'local_fire_department', image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=1920&q=80' },
-            { id: 6, name: 'Mountain Cabin', icon: 'cabin', image: 'https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?w=1920&q=80' },
-            { id: 7, name: 'Tropical Garden', icon: 'eco', image: 'https://images.unsplash.com/photo-1470058869958-2a77ade41c02?w=1920&q=80' }
+            { id: 0, name: 'Forest Stream', icon: 'forest', image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80', audio: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3' },
+            { id: 1, name: 'Mountain Lake', icon: 'landscape', image: 'https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=1920&q=80', audio: 'https://cdn.pixabay.com/download/audio/2021/08/09/audio_88447e769f.mp3' },
+            { id: 2, name: 'Ocean Waves', icon: 'waves', image: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1920&q=80', audio: 'https://cdn.pixabay.com/download/audio/2021/08/09/audio_1b3e7c07fc.mp3' },
+            { id: 3, name: 'Rainy Window', icon: 'water_drop', image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=1920&q=80', audio: 'https://cdn.pixabay.com/download/audio/2022/07/04/audio_5e95878b14.mp3' },
+            { id: 4, name: 'Sunrise Meadow', icon: 'wb_sunny', image: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?w=1920&q=80', audio: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c6ff79.mp3' },
+            { id: 5, name: 'Night Campfire', icon: 'local_fire_department', image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=1920&q=80', audio: 'https://cdn.pixabay.com/download/audio/2021/08/09/audio_3aa0c810a2.mp3' },
+            { id: 6, name: 'Mountain Cabin', icon: 'cabin', image: 'https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?w=1920&q=80', audio: 'https://cdn.pixabay.com/download/audio/2021/08/09/audio_88447e769f.mp3' },
+            { id: 7, name: 'Tropical Garden', icon: 'eco', image: 'https://images.unsplash.com/photo-1470058869958-2a77ade41c02?w=1920&q=80', audio: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c6ff79.mp3' }
         ];
 
         // Initialize
@@ -665,6 +665,7 @@
             updateTimerDisplay();
             navigateTo('focus');
             startTimer();
+            playSceneryAudio();
         }
 
         // Timer functions
@@ -710,6 +711,7 @@
                 statusIndicator.classList.remove('animate-pulse');
                 statusIndicator.classList.add('bg-tertiary');
                 statusIndicator.classList.remove('bg-primary');
+                pauseAudio();
             } else {
                 pauseBtn.classList.remove('hidden');
                 resumeBtn.classList.add('hidden');
@@ -717,6 +719,9 @@
                 statusIndicator.classList.add('animate-pulse');
                 statusIndicator.classList.remove('bg-tertiary');
                 statusIndicator.classList.add('bg-primary');
+                if (!isMuted) {
+                    audioPlayer.play().catch(err => console.log('Audio play failed:', err));
+                }
             }
         }
 
@@ -727,6 +732,7 @@
         function endSession() {
             if (state.timerInterval) clearInterval(state.timerInterval);
             state.sessionCompleted = true;
+            pauseAudio();
             calculateStats();
             navigateTo('summary');
         }
@@ -734,6 +740,7 @@
         function completeSession() {
             if (state.timerInterval) clearInterval(state.timerInterval);
             state.sessionCompleted = true;
+            pauseAudio();
             calculateStats();
             navigateTo('summary');
         }
@@ -839,12 +846,36 @@
             });
         }
 
-        // Audio toggle (placeholder)
+        // Audio element
+        const audioPlayer = new Audio();
+        audioPlayer.loop = true;
         let isMuted = false;
+
+        function playSceneryAudio() {
+            const scenery = sceneries[state.selectedScenery];
+            if (scenery && scenery.audio) {
+                audioPlayer.src = scenery.audio;
+                audioPlayer.volume = 0.5;
+                if (!isMuted) {
+                    audioPlayer.play().catch(err => console.log('Audio play failed:', err));
+                }
+            }
+        }
+
+        function pauseAudio() {
+            audioPlayer.pause();
+        }
+
         function toggleMute() {
             isMuted = !isMuted;
             const icon = document.getElementById('volume-icon');
             icon.textContent = isMuted ? 'volume_off' : 'volume_up';
+            
+            if (isMuted) {
+                audioPlayer.pause();
+            } else if (state.isRunning && state.currentView === 'focus') {
+                audioPlayer.play().catch(err => console.log('Audio play failed:', err));
+            }
         }
 
         // Share progress (placeholder)
