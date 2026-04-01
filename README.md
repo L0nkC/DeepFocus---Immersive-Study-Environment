@@ -38,6 +38,9 @@ A Progressive Web App (PWA) that tracks true focus by detecting tab switching, w
 
 ## Getting Started
 
+### 🌐 Live Website
+**Access the app directly at: https://L0nkC.github.io/DeepFocus---Immersive-Study-Environment/**
+
 ### Development
 
 ```bash
