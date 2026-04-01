@@ -4,119 +4,128 @@
 
 A Progressive Web App (PWA) that tracks true focus by detecting tab switching, window focus loss, and idle time. Transform your study sessions into immersive experiences with nature scenery and ambient sounds.
 
-![DeepFocus Screenshot](./screenshot.png)
-
 ## Features
 
 ### Core Functionality
 - **Always-Visible Timer** - Fullscreen focus mode with large, elegant timer display
 - **8 Nature Sceneries** - Forest Stream, Mountain Lake, Ocean Waves, Rainy Window, Sunrise Meadow, Night Campfire, Mountain Cabin, Tropical Garden
 - **Focus Integrity Score** - Tracks your focus quality by detecting interruptions
-- **Session Flow** - Setup -> Focus Mode -> Detection/Pause -> Complete/Stats
+- **Smart Analytics** - Real session data with streaks, focus time, and weekly charts
+- **Session History** - Grouped by date with detailed interruption tracking
 
 ### Focus Detection
 - **Tab Switching Detection** - Automatically detects when you leave the app
 - **Window Focus Tracking** - Monitors when you switch to other applications
+- **Idle Detection** - Pauses after 2 minutes of inactivity
 - **Pause/Resume** - Intuitive controls for breaks
-- **Interruption Logging** - Tracks focus integrity score
 
-### Design Philosophy
-- **"Digital Sanctuary"** - Atmospheric depth with full-screen natural imagery
-- **Glassmorphism UI** - Sophisticated frosted glass effects
-- **Earth Tone Palette** - Deep greens and slate tones to reduce eye strain
-- **Asymmetrical Layouts** - Editorial-style design for a premium feel
-- **No-Line Design** - No 1px borders; tonal transitions for sectioning
+### Analytics Dashboard
+- **Total Focus Time** - Cumulative time spent in focus
+- **Current Streak** - Consecutive days with focus sessions
+- **Best Streak** - Personal best streak record
+- **Focus Integrity** - Percentage of time actually focused vs session time
+- **Weekly Chart** - Visual bar chart of last 7 days
+- **Favorite Environment** - Most used scenery
+- **Session Insights** - Average duration, interruptions per session
 
-## Technical Stack
+## Tech Stack
 
-- **HTML5** - Semantic markup
-- **Tailwind CSS** - Utility-first styling with custom color palette
-- **Vanilla JavaScript** - No frameworks, lightweight and fast
-- **Page Visibility API** - For focus detection
-- **Material Symbols** - Google's icon font
-- **Google Fonts** - Manrope & Inter typography
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **Zustand** - State management with persistence
+- **Lucide Icons** - Modern icon library
 
 ## Getting Started
 
 ### 🌐 Live Website
 **Access the app directly at: https://L0nkC.github.io/DeepFocus---Immersive-Study-Environment/**
 
-### Local Development
-Simply open `index.html` in your browser:
+### Development
 
 ```bash
-# Clone the repository
-git clone https://github.com/L0nkC/DeepFocus---Immersive-Study-Environment.git
+# Install dependencies
+npm install
 
-# Navigate to the directory
-cd DeepFocus---Immersive-Study-Environment
+# Run development server
+npm run dev
 
-# Open in browser (macOS)
-open index.html
-
-# Or on Linux
-xdg-open index.html
+# Open http://localhost:3000
 ```
 
-### Deployment
-This is a static site that can be deployed to any web host:
-- GitHub Pages
-- Netlify
-- Vercel
-- Any static hosting
+### Build for Production
+
+```bash
+npm run build
+```
+
+### Deploy
+
+The `dist` folder contains static files ready for deployment to GitHub Pages, Netlify, or Vercel.
 
 ## Session Flow
 
-1. **Setup Screen** - Choose your session duration (25, 50, or 90 minutes) and select a nature scenery
-2. **Focus Mode** - Immersive fullscreen timer with your selected background
-3. **Detection** - App tracks interruptions like tab switching or window focus loss
-4. **Summary** - Post-session analysis with integrity score and statistics
+1. **Setup** - Choose scenery, set duration (or free session)
+2. **Focus Mode** - Fullscreen timer with nature gradient background
+3. **Detection** - Any tab switch pauses timer
+4. **Resume** - Return to tab to continue
+5. **Analytics** - View detailed stats after session
 
-## Keyboard Shortcuts
+## How Focus Detection Works
 
-| Key | Action |
-|-----|--------|
-| Space | Pause/Resume timer |
-| Escape | End session |
+The app uses multiple detection methods:
 
-## Browser Support
+```javascript
+// Tab visibility API
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) pauseTimer();
+});
 
-- Chrome/Edge (recommended)
-- Firefox
-- Safari
-- Mobile browsers (iOS Safari, Chrome Mobile)
+// Window focus/blur
+window.addEventListener('blur', () => pauseTimer());
+
+// Idle detection (2 min no input)
+setInterval(() => {
+  if (Date.now() - lastActivity > 120000) pauseTimer();
+}, 5000);
+```
 
 ## Design System
 
 ### Colors
-- **Background**: `#121416` - Deep, soft black
-- **Primary**: `#aecebe` - Sage green
-- **Secondary**: `#b1cad7` - Soft blue
-- **Tertiary**: `#ffb59e` - Warm coral (alerts)
-- **Surface Container**: `#1e2022` - Card backgrounds
+- **Background**: Slate 900/800 gradient
+- **Primary**: Emerald 500
+- **Accents**: Vary by scenery (green, blue, purple, amber)
 
 ### Typography
-- **Headlines**: Manrope (geometric, high impact)
-- **Body**: Inter (legible, clean)
+- **Headlines**: Geist Sans
+- **Timer**: Geist Mono
 
-## Future Roadmap
+## File Structure
 
-- [ ] Web Audio API integration for ambient nature sounds
-- [ ] Binaural beats for enhanced focus
-- [ ] PWA offline support
-- [ ] Local storage for session history
-- [ ] Advanced analytics dashboard
-- [ ] Custom scenery uploads
-- [ ] Focus streak tracking
-- [ ] Social sharing features
-
-## Credits
-
-Designed in [Stitch](https://stitch.withgoogle.com/) by Google - AI-powered design tool for creating beautiful interfaces.
+```
+src/
+├── app/
+│   ├── components/
+│   │   ├── AnalyticsDashboard.tsx  # Stats display
+│   │   ├── DurationSelector.tsx    # Timer duration picker
+│   │   ├── FocusOverlay.tsx        # Pause/resume modal
+│   │   ├── ScenerySelector.tsx     # Environment picker
+│   │   ├── SessionHistory.tsx      # Past sessions list
+│   │   └── Timer.tsx               # Active timer display
+│   ├── page.tsx                    # Main app
+│   └── layout.tsx                  # Root layout
+├── lib/
+│   ├── analytics.ts                # Analytics calculations
+│   ├── store.ts                    # Zustand state
+│   └── useFocusDetector.ts         # Focus detection hook
+└── types/
+    └── index.ts                    # TypeScript types
+```
 
 ## License
 
-MIT License - feel free to use and modify as needed.
+MIT License
 
 ---
 
