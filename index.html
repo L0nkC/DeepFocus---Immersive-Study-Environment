@@ -546,16 +546,12 @@
                 document.getElementById('nav-stats').classList.remove('text-emerald-100/40');
                 document.getElementById('nav-stats').classList.add('text-emerald-300', 'after:content-[\"\"]', 'after:absolute', 'after:right-[-24px]', 'after:h-8', 'after:w-1', 'after:bg-emerald-300', 'after:rounded-l-full');
             } else if (view === 'stats') {
-                // If no session completed, redirect to setup
+                document.getElementById('view-summary').classList.add('active');
+                document.getElementById('nav-stats').classList.remove('text-emerald-100/40');
+                document.getElementById('nav-stats').classList.add('text-emerald-300', 'after:content-[""]', 'after:absolute', 'after:right-[-24px]', 'after:h-8', 'after:w-1', 'after:bg-emerald-300', 'after:rounded-l-full');
+                // Show empty state if no session completed
                 if (!state.sessionCompleted) {
-                    document.getElementById('view-setup').classList.add('active');
-                    document.getElementById('nav-setup').classList.remove('text-emerald-100/40');
-                    document.getElementById('nav-setup').classList.add('text-emerald-300', 'after:content-[""]', 'after:absolute', 'after:right-[-24px]', 'after:h-8', 'after:w-1', 'after:bg-emerald-300', 'after:rounded-l-full');
-                    view = 'setup';
-                } else {
-                    document.getElementById('view-summary').classList.add('active');
-                    document.getElementById('nav-stats').classList.remove('text-emerald-100/40');
-                    document.getElementById('nav-stats').classList.add('text-emerald-300', 'after:content-[""]', 'after:absolute', 'after:right-[-24px]', 'after:h-8', 'after:w-1', 'after:bg-emerald-300', 'after:rounded-l-full');
+                    showEmptyStats();
                 }
             }
 
@@ -687,6 +683,16 @@
             if (sceneryImgEl) sceneryImgEl.src = scenery.image;
             if (sceneryNameEl) sceneryNameEl.textContent = scenery.name;
             if (bgImageEl) bgImageEl.src = scenery.image;
+        }
+
+        function showEmptyStats() {
+            document.getElementById('integrity-score').textContent = '--';
+            document.getElementById('active-time').innerHTML = '--<span class="text-sm text-on-surface-variant font-medium ml-1">m</span>';
+            document.getElementById('total-time').innerHTML = '--<span class="text-sm text-on-surface-variant font-medium ml-1">m</span>';
+            document.getElementById('interruptions').textContent = '--';
+            document.getElementById('summary-scenery-name').textContent = 'No session yet';
+            document.getElementById('summary-scenery-img').src = sceneries[0].image;
+            document.getElementById('summary-bg-image').src = sceneries[0].image;
         }
 
         // Visibility tracking for focus detection
