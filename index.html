@@ -444,7 +444,8 @@
             startTime: null,
             interruptions: 0,
             timerInterval: null,
-            integrityScore: 100
+            integrityScore: 100,
+            sessionCompleted: false
         };
 
         // Scenery data
@@ -540,10 +541,22 @@
                 document.getElementById('nav-setup').classList.add('text-emerald-300', 'after:content-[\"\"]', 'after:absolute', 'after:right-[-24px]', 'after:h-8', 'after:w-1', 'after:bg-emerald-300', 'after:rounded-l-full');
             } else if (view === 'focus') {
                 document.getElementById('view-focus').classList.add('active');
-            } else if (view === 'stats' || view === 'summary') {
+            } else if (view === 'summary') {
                 document.getElementById('view-summary').classList.add('active');
                 document.getElementById('nav-stats').classList.remove('text-emerald-100/40');
                 document.getElementById('nav-stats').classList.add('text-emerald-300', 'after:content-[\"\"]', 'after:absolute', 'after:right-[-24px]', 'after:h-8', 'after:w-1', 'after:bg-emerald-300', 'after:rounded-l-full');
+            } else if (view === 'stats') {
+                // If no session completed, redirect to setup
+                if (!state.sessionCompleted) {
+                    document.getElementById('view-setup').classList.add('active');
+                    document.getElementById('nav-setup').classList.remove('text-emerald-100/40');
+                    document.getElementById('nav-setup').classList.add('text-emerald-300', 'after:content-[""]', 'after:absolute', 'after:right-[-24px]', 'after:h-8', 'after:w-1', 'after:bg-emerald-300', 'after:rounded-l-full');
+                    view = 'setup';
+                } else {
+                    document.getElementById('view-summary').classList.add('active');
+                    document.getElementById('nav-stats').classList.remove('text-emerald-100/40');
+                    document.getElementById('nav-stats').classList.add('text-emerald-300', 'after:content-[""]', 'after:absolute', 'after:right-[-24px]', 'after:h-8', 'after:w-1', 'after:bg-emerald-300', 'after:rounded-l-full');
+                }
             }
 
             state.currentView = view;
@@ -557,6 +570,7 @@
             state.isPaused = false;
             state.startTime = new Date();
             state.interruptions = 0;
+            state.sessionCompleted = false;
             state.integrityScore = 100;
 
             // Update focus view
@@ -632,12 +646,14 @@
 
         function endSession() {
             if (state.timerInterval) clearInterval(state.timerInterval);
+            state.sessionCompleted = true;
             calculateStats();
             navigateTo('summary');
         }
 
         function completeSession() {
             if (state.timerInterval) clearInterval(state.timerInterval);
+            state.sessionCompleted = true;
             calculateStats();
             navigateTo('summary');
         }
@@ -653,14 +669,24 @@
 
             // Update summary view
             document.getElementById('integrity-score').textContent = state.integrityScore;
-            document.getElementById('active-time').innerHTML = `${activeMinutes}<span class="text-sm text-on-surface-variant font-medium ml-1">m</span>`;
-            document.getElementById('total-time').innerHTML = `${totalMinutes}<span class="text-sm text-on-surface-variant font-medium ml-1">m</span>`;
-            document.getElementById('interruptions').textContent = state.interruptions;
+            
+            // Ensure we're updating the elements with the calculated values
+            const activeTimeEl = document.getElementById('active-time');
+            const totalTimeEl = document.getElementById('total-time');
+            const interruptionsEl = document.getElementById('interruptions');
+            
+            if (activeTimeEl) activeTimeEl.innerHTML = `${activeMinutes}<span class="text-sm text-on-surface-variant font-medium ml-1">m</span>`;
+            if (totalTimeEl) totalTimeEl.innerHTML = `${totalMinutes}<span class="text-sm text-on-surface-variant font-medium ml-1">m</span>`;
+            if (interruptionsEl) interruptionsEl.textContent = state.interruptions;
 
             const scenery = sceneries[state.selectedScenery];
-            document.getElementById('summary-scenery-img').src = scenery.image;
-            document.getElementById('summary-scenery-name').textContent = scenery.name;
-            document.getElementById('summary-bg-image').src = scenery.image;
+            const sceneryImgEl = document.getElementById('summary-scenery-img');
+            const sceneryNameEl = document.getElementById('summary-scenery-name');
+            const bgImageEl = document.getElementById('summary-bg-image');
+            
+            if (sceneryImgEl) sceneryImgEl.src = scenery.image;
+            if (sceneryNameEl) sceneryNameEl.textContent = scenery.name;
+            if (bgImageEl) bgImageEl.src = scenery.image;
         }
 
         // Visibility tracking for focus detection
