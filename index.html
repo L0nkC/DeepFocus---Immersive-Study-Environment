@@ -819,6 +819,9 @@
                 if (!isMuted) {
                     audioPlayer.play().catch(err => console.log('Audio play failed:', err));
                 }
+                // Remove interruption toast if present
+                const toast = document.getElementById('interruption-toast');
+                if (toast) toast.remove();
             }
         }
 
@@ -1027,8 +1030,7 @@
                 if (state.currentView === 'focus' && state.isRunning && !state.isPaused) {
                     if (document.hidden) {
                         state.interruptions++;
-                        // Flash notification or subtle indicator
-                        console.log('Tab switched - interruption detected');
+                        pauseFromInterruption('Tab left');
                     }
                 }
             });
@@ -1036,8 +1038,66 @@
             window.addEventListener('blur', () => {
                 if (state.currentView === 'focus' && state.isRunning && !state.isPaused) {
                     state.interruptions++;
+                    pauseFromInterruption('Window lost focus');
                 }
             });
+        }
+
+        // Pause session due to interruption (tab switch/window blur)
+        function pauseFromInterruption(reason) {
+            state.isPaused = true;
+            
+            // Update UI to show paused state
+            const pauseBtn = document.getElementById('pause-btn');
+            const resumeBtn = document.getElementById('resume-btn');
+            const statusText = document.getElementById('status-text');
+            const statusIndicator = document.getElementById('status-indicator');
+            
+            if (pauseBtn) pauseBtn.classList.add('hidden');
+            if (resumeBtn) resumeBtn.classList.remove('hidden');
+            if (statusText) statusText.textContent = 'Session Paused - Interruption';
+            if (statusIndicator) {
+                statusIndicator.classList.remove('animate-pulse', 'bg-primary');
+                statusIndicator.classList.add('bg-tertiary');
+            }
+            
+            // Pause audio
+            pauseAudio();
+            
+            // Show interruption notification toast
+            showInterruptionToast(state.interruptions);
+            
+            console.log(`Session paused - ${reason}. Total interruptions: ${state.interruptions}`);
+        }
+
+        // Show interruption notification toast
+        function showInterruptionToast(count) {
+            // Remove existing toast if any
+            const existingToast = document.getElementById('interruption-toast');
+            if (existingToast) existingToast.remove();
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.id = 'interruption-toast';
+            toast.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-panel px-6 py-4 rounded-xl border border-tertiary/30 shadow-2xl animate-pulse-soft';
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-tertiary">warning</span>
+                    <div>
+                        <p class="font-label text-sm font-semibold text-on-surface">Session Paused</p>
+                        <p class="font-label text-xs text-on-surface-variant">Interruption #${count} detected. Click Resume to continue.</p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Remove toast after 5 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
         }
 
         // Audio element
