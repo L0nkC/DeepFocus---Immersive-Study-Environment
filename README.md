@@ -12,7 +12,7 @@ Choose your scenery, set custom session duration (5-120 minutes), and schedule b
 ![Setup Screen](screenshots/setup-screen.png)
 
 ### Scheduled Pauses - Maintain Peak Performance
-Add optional breaks at specific times to maintain cognitive performance.
+Add optional breaks by setting "Time Into Session" and "Pause Duration" in minutes. The input boxes make it easy to configure when breaks happen.
 
 ![Scheduled Pauses](screenshots/scheduled-pauses.png)
 
