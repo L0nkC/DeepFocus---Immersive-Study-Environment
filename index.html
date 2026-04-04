@@ -171,6 +171,52 @@
             transform: scale(1.2);
             box-shadow: 0 0 8px rgba(174, 206, 190, 0.5);
         }
+        /* Duration Slider Styling */
+        #duration-slider {
+            background: rgba(51, 53, 55, 0.5);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        #duration-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #aecebe;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 3px solid #1a1c1e;
+            box-shadow: 0 0 0 1px rgba(174, 206, 190, 0.3);
+        }
+        #duration-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(174, 206, 190, 0.6);
+        }
+        #duration-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #aecebe;
+            cursor: pointer;
+            border: 3px solid #1a1c1e;
+            box-shadow: 0 0 0 1px rgba(174, 206, 190, 0.3);
+            transition: all 0.2s ease;
+        }
+        #duration-slider::-moz-range-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(174, 206, 190, 0.6);
+        }
+        /* Duration Input - hide number spinner */
+        #duration-input::-webkit-outer-spin-button,
+        #duration-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #duration-input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background font-body min-h-screen selection:bg-primary/30 overflow-x-hidden">
@@ -229,32 +275,50 @@
                 <!-- Grid Layout -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
                     <!-- Left: Timer Selection -->
-                    <div class="lg:col-span-4 space-y-8">
+                    <div class="lg:col-span-4 space-y-6">
+                        <!-- Session Duration -->
                         <div class="space-y-6">
                             <h2 class="font-headline text-xl text-on-surface-variant font-medium">Session Duration</h2>
-                            <div class="flex flex-col gap-4" id="duration-container">
-                                <button class="duration-btn selected group relative flex items-center justify-between p-6 rounded-xl border border-outline-variant/10 hover:bg-surface-container transition-all duration-300" data-duration="25">
-                                    <div class="flex flex-col items-start">
-                                        <span class="font-headline text-3xl font-light text-on-surface duration-value">25</span>
-                                        <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant/60">Minutes</span>
-                                    </div>
-                                    <div class="duration-indicator w-2 h-2 rounded-full bg-primary shadow-[0_0_12px_rgba(174,206,190,0.6)]"></div>
-                                </button>
-                                <button class="duration-btn group relative flex items-center justify-between p-6 rounded-xl border border-outline-variant/10 hover:bg-surface-container-low transition-all duration-300" data-duration="50">
-                                    <div class="flex flex-col items-start">
-                                        <span class="font-headline text-3xl font-light text-on-surface-variant duration-value">50</span>
-                                        <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant/40">Minutes</span>
-                                    </div>
-                                    <div class="duration-indicator hidden w-2 h-2 rounded-full bg-primary shadow-[0_0_12px_rgba(174,206,190,0.6)]"></div>
-                                </button>
-                                <button class="duration-btn group relative flex items-center justify-between p-6 rounded-xl border border-outline-variant/10 hover:bg-surface-container-low transition-all duration-300" data-duration="90">
-                                    <div class="flex flex-col items-start">
-                                        <span class="font-headline text-3xl font-light text-on-surface-variant duration-value">90</span>
-                                        <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant/40">Minutes</span>
-                                    </div>
-                                    <div class="duration-indicator hidden w-2 h-2 rounded-full bg-primary shadow-[0_0_12px_rgba(174,206,190,0.6)]"></div>
+                            
+                            <!-- Duration Display -->
+                            <div class="glass-panel p-6 rounded-2xl border border-white/5 text-center">
+                                <div class="flex items-baseline justify-center gap-2">
+                                    <input type="number" id="duration-input" min="5" max="180" value="25" 
+                                        class="font-headline text-5xl font-light text-on-surface bg-transparent border-none outline-none text-center w-24"
+                                        onchange="updateDurationFromInput(this.value)">
+                                    <span class="font-label text-sm uppercase tracking-widest text-on-surface-variant/60">MINUTES</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Duration Slider -->
+                            <div class="space-y-3">
+                                <input type="range" id="duration-slider" min="5" max="120" value="25" 
+                                    class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer"
+                                    oninput="updateDurationFromSlider(this.value)">
+                                <div class="flex justify-between text-xs font-label text-on-surface-variant/40">
+                                    <span>5M</span>
+                                    <span>60M</span>
+                                    <span>120M</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Scheduled Pauses -->
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h2 class="font-headline text-lg text-on-surface-variant font-medium">Scheduled Pauses</h2>
+                                <button onclick="addPause()" class="flex items-center gap-1 text-xs font-label uppercase tracking-wider text-primary hover:text-primary/80 transition-colors">
+                                    <span class="material-symbols-outlined text-sm">add_circle</span>
+                                    ADD PAUSE
                                 </button>
                             </div>
+                            
+                            <!-- Pauses List -->
+                            <div id="pauses-container" class="space-y-3">
+                                <!-- Pause items will be added here -->
+                            </div>
+                            
+                            <p class="text-xs font-label text-on-surface-variant/50 italic">Add optional breaks to maintain peak cognitive performance.</p>
                         </div>
                     </div>
 
@@ -624,10 +688,10 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             renderSceneryCards();
-            setupDurationButtons();
             setupVisibilityTracking();
             setupSettingsSlider();
             updateSideStats();
+            loadPauses();
         });
 
         // Render scenery cards
@@ -646,24 +710,97 @@
             `).join('');
         }
 
-        // Setup duration buttons
-        function setupDurationButtons() {
-            const buttons = document.querySelectorAll('.duration-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    buttons.forEach(b => {
-                        b.classList.remove('selected');
-                        b.querySelector('.duration-value').classList.remove('text-on-surface');
-                        b.querySelector('.duration-value').classList.add('text-on-surface-variant');
-                        b.querySelector('.duration-indicator').classList.add('hidden');
-                    });
-                    btn.classList.add('selected');
-                    btn.querySelector('.duration-value').classList.remove('text-on-surface-variant');
-                    btn.querySelector('.duration-value').classList.add('text-on-surface');
-                    btn.querySelector('.duration-indicator').classList.remove('hidden');
-                    state.selectedDuration = parseInt(btn.dataset.duration);
-                });
-            });
+        // Duration slider and input handling
+        function updateDurationFromSlider(value) {
+            state.selectedDuration = parseInt(value);
+            document.getElementById('duration-input').value = value;
+        }
+
+        function updateDurationFromInput(value) {
+            let duration = parseInt(value);
+            // Clamp between 5 and 180
+            duration = Math.max(5, Math.min(180, duration));
+            state.selectedDuration = duration;
+            document.getElementById('duration-slider').value = duration;
+            document.getElementById('duration-input').value = duration;
+        }
+
+        // Scheduled Pauses Management
+        let scheduledPauses = [];
+
+        function addPause() {
+            const newPause = {
+                id: Date.now(),
+                timeIntoSession: 25,
+                duration: 5
+            };
+            scheduledPauses.push(newPause);
+            renderPauses();
+        }
+
+        function removePause(id) {
+            scheduledPauses = scheduledPauses.filter(p => p.id !== id);
+            renderPauses();
+        }
+
+        function updatePauseTime(id, value) {
+            const pause = scheduledPauses.find(p => p.id === id);
+            if (pause) {
+                pause.timeIntoSession = Math.max(1, Math.min(state.selectedDuration - 1, parseInt(value) || 1));
+                renderPauses();
+            }
+        }
+
+        function updatePauseDuration(id, value) {
+            const pause = scheduledPauses.find(p => p.id === id);
+            if (pause) {
+                pause.duration = Math.max(1, Math.min(30, parseInt(value) || 1));
+                renderPauses();
+            }
+        }
+
+        function renderPauses() {
+            const container = document.getElementById('pauses-container');
+            if (scheduledPauses.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = scheduledPauses.map(pause => `
+                <div class="glass-panel p-4 rounded-xl border border-white/5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex gap-8 text-[10px] font-label uppercase tracking-wider text-on-surface-variant/60">
+                            <span>Time Into Session</span>
+                            <span>Pause Duration</span>
+                        </div>
+                        <button onclick="removePause(${pause.id})" class="text-on-surface-variant/40 hover:text-tertiary transition-colors">
+                            <span class="material-symbols-outlined text-lg">close</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-baseline gap-1">
+                            <input type="number" value="${pause.timeIntoSession}" min="1" max="${state.selectedDuration - 1}" 
+                                class="w-14 font-headline text-2xl text-on-surface bg-transparent border-none outline-none text-center"
+                                onchange="updatePauseTime(${pause.id}, this.value)">
+                            <span class="font-label text-xs text-on-surface-variant/60">MIN</span>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <input type="number" value="${pause.duration}" min="1" max="30" 
+                                class="w-14 font-headline text-2xl text-on-surface bg-transparent border-none outline-none text-center"
+                                onchange="updatePauseDuration(${pause.id}, this.value)">
+                            <span class="font-label text-xs text-on-surface-variant/60">MIN</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadPauses() {
+            // Initialize with one default pause if empty
+            if (scheduledPauses.length === 0) {
+                scheduledPauses = [];
+            }
+            renderPauses();
         }
 
         // Select scenery
