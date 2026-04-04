@@ -22,7 +22,7 @@ Immersive fullscreen timer with nature background and ambient audio.
 ![Focus Session](screenshots/focus-session.png)
 
 ### Pause Markers on Timeline
-Visual indicators on the progress bar show when scheduled breaks will occur.
+Orange vertical markers on the progress bar indicate when scheduled breaks will automatically trigger during your focus session.
 
 ![Pause Markers](screenshots/pause-markers.png)
 
