@@ -217,6 +217,22 @@
         #duration-input[type=number] {
             -moz-appearance: textfield;
         }
+        /* Pause input styling */
+        .pause-input {
+            color: #e2e2e5 !important;
+            caret-color: #aecebe;
+        }
+        .pause-input::placeholder {
+            color: #8d928d;
+        }
+        .pause-input::-webkit-outer-spin-button,
+        .pause-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .pause-input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background font-body min-h-screen selection:bg-primary/30 overflow-x-hidden">
@@ -769,7 +785,7 @@
             container.innerHTML = scheduledPauses.map(pause => `
                 <div class="glass-panel p-4 rounded-xl border border-white/5">
                     <div class="flex items-center justify-between mb-3">
-                        <div class="flex gap-8 text-[10px] font-label uppercase tracking-wider text-on-surface-variant/60">
+                        <div class="flex gap-6 text-[10px] font-label uppercase tracking-wider text-on-surface-variant/60">
                             <span>Time Into Session</span>
                             <span>Pause Duration</span>
                         </div>
@@ -777,16 +793,18 @@
                             <span class="material-symbols-outlined text-lg">close</span>
                         </button>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-baseline gap-1">
+                    <div class="flex items-center gap-6">
+                        <div class="flex items-baseline gap-2 bg-surface-container/50 rounded-lg px-3 py-2">
                             <input type="number" value="${pause.timeIntoSession}" min="1" max="${state.selectedDuration - 1}" 
-                                class="w-14 font-headline text-2xl text-on-surface bg-transparent border-none outline-none text-center"
+                                class="w-12 font-headline text-2xl bg-transparent border-none outline-none text-center text-on-surface"
+                                style="color: #e2e2e5;"
                                 onchange="updatePauseTime(${pause.id}, this.value)">
                             <span class="font-label text-xs text-on-surface-variant/60">MIN</span>
                         </div>
-                        <div class="flex items-baseline gap-1">
+                        <div class="flex items-baseline gap-2 bg-surface-container/50 rounded-lg px-3 py-2">
                             <input type="number" value="${pause.duration}" min="1" max="30" 
-                                class="w-14 font-headline text-2xl text-on-surface bg-transparent border-none outline-none text-center"
+                                class="w-12 font-headline text-2xl bg-transparent border-none outline-none text-center text-on-surface"
+                                style="color: #e2e2e5;"
                                 onchange="updatePauseDuration(${pause.id}, this.value)">
                             <span class="font-label text-xs text-on-surface-variant/60">MIN</span>
                         </div>
