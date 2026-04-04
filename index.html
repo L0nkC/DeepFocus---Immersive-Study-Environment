@@ -876,6 +876,9 @@
             state.interruptions = 0;
             state.sessionCompleted = false;
             state.integrityScore = 100;
+            
+            // Reset scheduled pauses triggered state
+            scheduledPauses.forEach(p => p.triggered = false);
 
             // Update focus view
             const scenery = sceneries[state.selectedScenery];
@@ -912,12 +915,76 @@
                     state.timeRemaining--;
                     updateTimerDisplay();
                     updateProgress();
+                    checkScheduledPauses();
 
                     if (state.timeRemaining <= 0) {
                         completeSession();
                     }
                 }
             }, 1000);
+        }
+
+        // Check if we should trigger a scheduled pause
+        function checkScheduledPauses() {
+            const elapsedMinutes = Math.floor((state.totalTime - state.timeRemaining) / 60);
+            
+            scheduledPauses.forEach(pause => {
+                // Check if we've reached a pause time (within 1 minute window)
+                if (elapsedMinutes === pause.timeIntoSession && !pause.triggered) {
+                    pause.triggered = true;
+                    triggerScheduledPause(pause);
+                }
+            });
+        }
+
+        // Trigger a scheduled pause
+        function triggerScheduledPause(pause) {
+            state.isPaused = true;
+            state.scheduledPauseEnd = Date.now() + (pause.duration * 60 * 1000);
+            
+            // Update UI
+            const pauseBtn = document.getElementById('pause-btn');
+            const resumeBtn = document.getElementById('resume-btn');
+            const statusText = document.getElementById('status-text');
+            const statusIndicator = document.getElementById('status-indicator');
+            
+            if (pauseBtn) pauseBtn.classList.add('hidden');
+            if (resumeBtn) resumeBtn.classList.remove('hidden');
+            if (statusText) statusText.textContent = `Scheduled Break (${pause.duration} min)`;
+            if (statusIndicator) {
+                statusIndicator.classList.remove('animate-pulse', 'bg-primary');
+                statusIndicator.classList.add('bg-tertiary');
+            }
+            
+            pauseAudio();
+            showPauseToast(pause.duration);
+        }
+
+        // Show scheduled pause notification
+        function showPauseToast(duration) {
+            const existingToast = document.getElementById('pause-toast');
+            if (existingToast) existingToast.remove();
+            
+            const toast = document.createElement('div');
+            toast.id = 'pause-toast';
+            toast.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-panel px-6 py-4 rounded-xl border border-primary/30 shadow-2xl';
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">coffee</span>
+                    <div>
+                        <p class="font-label text-sm font-semibold text-on-surface">Scheduled Break</p>
+                        <p class="font-label text-xs text-on-surface-variant">Taking a ${duration}-minute break for optimal focus.</p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
         }
 
         function updateTimerDisplay() {
