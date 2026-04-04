@@ -385,8 +385,12 @@
                     </h1>
                     <!-- Progress -->
                     <div class="w-full max-w-md mt-6 md:mt-8">
-                        <div class="h-1 w-full bg-surface-container-highest/30 overflow-hidden rounded-full">
+                        <div class="relative h-1 w-full bg-surface-container-highest/30 overflow-hidden rounded-full">
                             <div id="progress-bar" class="h-full bg-primary shadow-[0_0_15px_rgba(174,206,190,0.5)] transition-all duration-1000" style="width: 0%"></div>
+                            <!-- Pause Markers Container -->
+                            <div id="pause-markers" class="absolute inset-0 pointer-events-none">
+                                <!-- Pause markers will be added here -->
+                            </div>
                         </div>
                         <div class="flex justify-between mt-3 px-1">
                             <span id="start-time" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60">--:--</span>
@@ -824,6 +828,28 @@
             renderPauses();
         }
 
+        // Render pause markers on the timeline in focus view
+        function renderPauseMarkers() {
+            const markersContainer = document.getElementById('pause-markers');
+            if (!markersContainer) return;
+            
+            if (scheduledPauses.length === 0) {
+                markersContainer.innerHTML = '';
+                return;
+            }
+
+            markersContainer.innerHTML = scheduledPauses.map(pause => {
+                const position = (pause.timeIntoSession / state.selectedDuration) * 100;
+                return `
+                    <div class="absolute top-0 bottom-0 w-0.5 bg-tertiary shadow-[0_0_8px_rgba(255,181,158,0.6)]" 
+                         style="left: ${position}%"
+                         title="Break at ${pause.timeIntoSession} min (${pause.duration} min pause)">
+                        <div class="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-tertiary shadow-[0_0_6px_rgba(255,181,158,0.8)]"></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         // Select scenery
         function selectScenery(index) {
             state.selectedScenery = index;
@@ -900,6 +926,9 @@
             
             // Reset scheduled pauses triggered state
             scheduledPauses.forEach(p => p.triggered = false);
+
+            // Render pause markers on timeline
+            renderPauseMarkers();
 
             // Update focus view
             const scenery = sceneries[state.selectedScenery];
