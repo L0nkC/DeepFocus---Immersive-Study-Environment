@@ -4,124 +4,146 @@
 
 A Progressive Web App (PWA) that tracks true focus by detecting tab switching, window focus loss, and idle time. Transform your study sessions into immersive experiences with nature scenery and ambient sounds.
 
+## Screenshots
+
+### Setup Screen - Design Your Flow
+Choose your scenery, set custom session duration (5-120 minutes), and schedule breaks.
+
+![Setup Screen](screenshots/setup-screen.png)
+
+### Scheduled Pauses - Maintain Peak Performance
+Add optional breaks at specific times to maintain cognitive performance.
+
+![Scheduled Pauses](screenshots/scheduled-pauses.png)
+
+### Focus Session - Deep Work Mode
+Immersive fullscreen timer with nature background and ambient audio.
+
+![Focus Session](screenshots/focus-session.png)
+
+### Pause Markers on Timeline
+Visual indicators on the progress bar show when scheduled breaks will occur.
+
+![Pause Markers](screenshots/pause-markers.png)
+
+### Session History - Track Your Journey
+View completed sessions with integrity scores and favorite environments.
+
+![Session History](screenshots/session-history.png)
+
 ## Features
 
 ### Core Functionality
 - **Always-Visible Timer** - Fullscreen focus mode with large, elegant timer display
 - **8 Nature Sceneries** - Forest Stream, Mountain Lake, Ocean Waves, Rainy Window, Sunrise Meadow, Night Campfire, Mountain Cabin, Tropical Garden
+- **Custom Duration** - Slider to set any session length from 5 to 120 minutes
+- **Scheduled Pauses** - Set automatic breaks at specific times with countdown timer
+- **Volume Control** - Slider to adjust ambient sound volume
 - **Focus Integrity Score** - Tracks your focus quality by detecting interruptions
-- **Smart Analytics** - Real session data with streaks, focus time, and weekly charts
-- **Session History** - Grouped by date with detailed interruption tracking
+- **Smart Analytics** - Real session data with streaks, focus time, and session history
 
 ### Focus Detection
-- **Tab Switching Detection** - Automatically detects when you leave the app
+- **Tab Switching Detection** - Automatically pauses timer when you leave the tab
 - **Window Focus Tracking** - Monitors when you switch to other applications
-- **Idle Detection** - Pauses after 2 minutes of inactivity
-- **Pause/Resume** - Intuitive controls for breaks
+- **Interruption Counter** - Tracks how many times you leave during a session
+- **Auto-Pause/Resume** - Timer pauses immediately when interrupted, resumes when you return
+
+### Scheduled Breaks System
+- **Custom Break Times** - Schedule pauses at specific minutes into your session
+- **Break Duration** - Set how long each break lasts (1-30 minutes)
+- **Visual Timeline Markers** - See break times marked on the session progress bar
+- **Auto-Resuming Break Timer** - Separate countdown during breaks that auto-resumes focus session
+- **Break Notifications** - Toast notifications when breaks start and end
 
 ### Analytics Dashboard
 - **Total Focus Time** - Cumulative time spent in focus
 - **Current Streak** - Consecutive days with focus sessions
-- **Best Streak** - Personal best streak record
 - **Focus Integrity** - Percentage of time actually focused vs session time
-- **Weekly Chart** - Visual bar chart of last 7 days
-- **Favorite Environment** - Most used scenery
+- **Session History** - View all past sessions with scenery, scores, and dates
 - **Session Insights** - Average duration, interruptions per session
 
 ## Tech Stack
 
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first styling
-- **Zustand** - State management with persistence
-- **Lucide Icons** - Modern icon library
+- **HTML5** - Semantic markup
+- **Tailwind CSS** - Utility-first styling via CDN
+- **Vanilla JavaScript** - No frameworks, pure ES6+
+- **LocalStorage** - Data persistence
+- **Material Symbols** - Google Icons
 
 ## Getting Started
 
 ### 🌐 Live Website
 **Access the app directly at: https://L0nkC.github.io/DeepFocus---Immersive-Study-Environment/**
 
-### Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Open http://localhost:3000
-```
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-### Deploy
-
-The `dist` folder contains static files ready for deployment to GitHub Pages, Netlify, or Vercel.
+Or open `index.html` directly in your browser.
 
 ## Session Flow
 
-1. **Setup** - Choose scenery, set duration (or free session)
-2. **Focus Mode** - Fullscreen timer with nature gradient background
-3. **Detection** - Any tab switch pauses timer
-4. **Resume** - Return to tab to continue
-5. **Analytics** - View detailed stats after session
+1. **Setup** - Choose scenery, set duration with slider, add scheduled pauses
+2. **Focus Mode** - Fullscreen timer with nature background and ambient audio
+3. **Break Time** - Auto-pause at scheduled times with countdown timer
+4. **Auto-Resume** - Focus session continues automatically after break ends
+5. **Analytics** - View detailed stats and session history after completion
 
 ## How Focus Detection Works
 
 The app uses multiple detection methods:
 
 ```javascript
-// Tab visibility API
+// Tab visibility API - pauses when you switch tabs
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) pauseTimer();
+  if (document.hidden) {
+    state.interruptions++;
+    pauseTimer();
+  }
 });
 
-// Window focus/blur
+// Window focus/blur - pauses when you leave the window
 window.addEventListener('blur', () => pauseTimer());
-
-// Idle detection (2 min no input)
-setInterval(() => {
-  if (Date.now() - lastActivity > 120000) pauseTimer();
-}, 5000);
 ```
+
+## How Scheduled Breaks Work
+
+1. **Set Breaks in Setup** - Add pauses with "Time Into Session" and "Duration"
+2. **Visual Markers** - Break times appear as orange lines on the progress bar
+3. **Auto-Trigger** - Timer pauses automatically when break time is reached
+4. **Break Countdown** - Separate timer counts down the break duration
+5. **Auto-Resume** - Focus session resumes automatically when break ends
 
 ## Design System
 
 ### Colors
-- **Background**: Slate 900/800 gradient
-- **Primary**: Emerald 500
-- **Accents**: Vary by scenery (green, blue, purple, amber)
+- **Background**: Dark slate (#121416)
+- **Primary**: Sage green (#aecebe)
+- **Tertiary**: Soft coral (#ffb59e) - for interruptions and breaks
+- **Surface**: Dark panels with glass-morphism effect
 
 ### Typography
-- **Headlines**: Geist Sans
-- **Timer**: Geist Mono
+- **Headlines**: Manrope font
+- **Body**: Inter font
+- **Timer**: Large, thin weight for elegance
 
 ## File Structure
 
 ```
-src/
-├── app/
-│   ├── components/
-│   │   ├── AnalyticsDashboard.tsx  # Stats display
-│   │   ├── DurationSelector.tsx    # Timer duration picker
-│   │   ├── FocusOverlay.tsx        # Pause/resume modal
-│   │   ├── ScenerySelector.tsx     # Environment picker
-│   │   ├── SessionHistory.tsx      # Past sessions list
-│   │   └── Timer.tsx               # Active timer display
-│   ├── page.tsx                    # Main app
-│   └── layout.tsx                  # Root layout
-├── lib/
-│   ├── analytics.ts                # Analytics calculations
-│   ├── store.ts                    # Zustand state
-│   └── useFocusDetector.ts         # Focus detection hook
-└── types/
-    └── index.ts                    # TypeScript types
+├── index.html              # Main app (single file)
+├── screenshots/            # App screenshots
+│   ├── setup-screen.png
+│   ├── scheduled-pauses.png
+│   ├── focus-session.png
+│   ├── pause-markers.png
+│   └── session-history.png
+└── README.md
 ```
+
+## Browser Compatibility
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+**Note**: Audio requires user interaction due to browser autoplay policies.
 
 ## License
 
