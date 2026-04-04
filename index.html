@@ -990,7 +990,9 @@
         // Trigger a scheduled pause
         function triggerScheduledPause(pause) {
             state.isPaused = true;
-            state.scheduledPauseEnd = Date.now() + (pause.duration * 60 * 1000);
+            state.inScheduledPause = true;
+            state.pauseDuration = pause.duration * 60; // in seconds
+            state.pauseTimeRemaining = state.pauseDuration;
             
             // Update UI
             const pauseBtn = document.getElementById('pause-btn');
@@ -1000,7 +1002,7 @@
             
             if (pauseBtn) pauseBtn.classList.add('hidden');
             if (resumeBtn) resumeBtn.classList.remove('hidden');
-            if (statusText) statusText.textContent = `Scheduled Break (${pause.duration} min)`;
+            if (statusText) statusText.textContent = 'Break Time';
             if (statusIndicator) {
                 statusIndicator.classList.remove('animate-pulse', 'bg-primary');
                 statusIndicator.classList.add('bg-tertiary');
@@ -1008,6 +1010,123 @@
             
             pauseAudio();
             showPauseToast(pause.duration);
+            
+            // Start the pause countdown timer
+            startPauseTimer();
+        }
+
+        // Start the pause countdown timer
+        function startPauseTimer() {
+            if (state.pauseTimerInterval) clearInterval(state.pauseTimerInterval);
+            
+            updatePauseDisplay();
+            
+            state.pauseTimerInterval = setInterval(() => {
+                if (state.pauseTimeRemaining > 0) {
+                    state.pauseTimeRemaining--;
+                    updatePauseDisplay();
+                } else {
+                    // Pause timer ended, resume focus session
+                    endPauseAndResume();
+                }
+            }, 1000);
+        }
+
+        // Update the timer display during pause
+        function updatePauseDisplay() {
+            const minutes = Math.floor(state.pauseTimeRemaining / 60);
+            const seconds = state.pauseTimeRemaining % 60;
+            const timerDisplay = document.getElementById('timer-display');
+            if (timerDisplay) {
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Update status text with remaining time
+            const statusText = document.getElementById('status-text');
+            if (statusText) {
+                statusText.textContent = `Break - ${minutes}m ${seconds}s remaining`;
+            }
+            
+            // Update progress bar to show pause progress
+            const progressBar = document.getElementById('progress-bar');
+            if (progressBar) {
+                const pauseProgress = ((state.pauseDuration - state.pauseTimeRemaining) / state.pauseDuration) * 100;
+                progressBar.style.width = `${pauseProgress}%`;
+                progressBar.classList.remove('bg-primary');
+                progressBar.classList.add('bg-tertiary');
+            }
+        }
+
+        // End pause and resume focus session
+        function endPauseAndResume() {
+            // Clear pause timer
+            if (state.pauseTimerInterval) {
+                clearInterval(state.pauseTimerInterval);
+                state.pauseTimerInterval = null;
+            }
+            
+            state.inScheduledPause = false;
+            state.isPaused = false;
+            
+            // Restore main timer display
+            updateTimerDisplay();
+            updateProgress();
+            
+            // Restore progress bar color
+            const progressBar = document.getElementById('progress-bar');
+            if (progressBar) {
+                progressBar.classList.remove('bg-tertiary');
+                progressBar.classList.add('bg-primary');
+            }
+            
+            // Update UI for resumed state
+            const pauseBtn = document.getElementById('pause-btn');
+            const resumeBtn = document.getElementById('resume-btn');
+            const statusText = document.getElementById('status-text');
+            const statusIndicator = document.getElementById('status-indicator');
+            
+            if (pauseBtn) pauseBtn.classList.remove('hidden');
+            if (resumeBtn) resumeBtn.classList.add('hidden');
+            if (statusText) statusText.textContent = 'Deep Work Session';
+            if (statusIndicator) {
+                statusIndicator.classList.add('animate-pulse', 'bg-primary');
+                statusIndicator.classList.remove('bg-tertiary');
+            }
+            
+            // Resume audio if not muted
+            if (!isMuted) {
+                audioPlayer.play().catch(err => console.log('Audio play failed:', err));
+            }
+            
+            // Show resume notification
+            showResumeToast();
+        }
+
+        // Show resume notification
+        function showResumeToast() {
+            const existingToast = document.getElementById('pause-toast');
+            if (existingToast) existingToast.remove();
+            
+            const toast = document.createElement('div');
+            toast.id = 'pause-toast';
+            toast.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-panel px-6 py-4 rounded-xl border border-emerald-400/30 shadow-2xl';
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-emerald-400">play_arrow</span>
+                    <div>
+                        <p class="font-label text-sm font-semibold text-on-surface">Break Complete</p>
+                        <p class="font-label text-xs text-on-surface-variant">Focus session resumed. Let's get back to it!</p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
         }
 
         // Show scheduled pause notification
@@ -1017,13 +1136,13 @@
             
             const toast = document.createElement('div');
             toast.id = 'pause-toast';
-            toast.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-panel px-6 py-4 rounded-xl border border-primary/30 shadow-2xl';
+            toast.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-panel px-6 py-4 rounded-xl border border-tertiary/30 shadow-2xl';
             toast.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary">coffee</span>
+                    <span class="material-symbols-outlined text-tertiary">coffee</span>
                     <div>
-                        <p class="font-label text-sm font-semibold text-on-surface">Scheduled Break</p>
-                        <p class="font-label text-xs text-on-surface-variant">Taking a ${duration}-minute break for optimal focus.</p>
+                        <p class="font-label text-sm font-semibold text-on-surface">Scheduled Break Started</p>
+                        <p class="font-label text-xs text-on-surface-variant">Taking a ${duration}-minute break. Timer will resume automatically.</p>
                     </div>
                 </div>
             `;
@@ -1082,11 +1201,17 @@
         }
 
         function resumeSession() {
-            togglePause();
+            // If we're in a scheduled pause, end it properly
+            if (state.inScheduledPause) {
+                endPauseAndResume();
+            } else {
+                togglePause();
+            }
         }
 
         function endSession() {
             if (state.timerInterval) clearInterval(state.timerInterval);
+            if (state.pauseTimerInterval) clearInterval(state.pauseTimerInterval);
             state.sessionCompleted = true;
             pauseAudio();
             calculateStats();
@@ -1095,6 +1220,7 @@
 
         function completeSession() {
             if (state.timerInterval) clearInterval(state.timerInterval);
+            if (state.pauseTimerInterval) clearInterval(state.pauseTimerInterval);
             state.sessionCompleted = true;
             pauseAudio();
             calculateStats();
