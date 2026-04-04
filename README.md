@@ -27,7 +27,7 @@ Visual indicators on the progress bar show when scheduled breaks will occur.
 ![Pause Markers](screenshots/pause-markers.png)
 
 ### Session History - Track Your Journey
-View completed sessions with integrity scores and favorite environments.
+View your "Recent Journeys" with session cards showing scenery, scores, dates, and duration. Access via the book icon in the sidebar.
 
 ![Session History](screenshots/session-history.png)
 
