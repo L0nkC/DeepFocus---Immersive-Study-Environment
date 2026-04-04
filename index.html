@@ -662,6 +662,18 @@
             const startTimeStr = state.startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
             document.getElementById('start-time').textContent = `Started ${startTimeStr}`;
 
+            // Reset pause/resume buttons to correct initial state (show pause, hide resume)
+            const pauseBtn = document.getElementById('pause-btn');
+            const resumeBtn = document.getElementById('resume-btn');
+            const statusText = document.getElementById('status-text');
+            const statusIndicator = document.getElementById('status-indicator');
+            
+            pauseBtn.classList.remove('hidden');
+            resumeBtn.classList.add('hidden');
+            statusText.textContent = 'Deep Work Session';
+            statusIndicator.classList.add('animate-pulse', 'bg-primary');
+            statusIndicator.classList.remove('bg-tertiary');
+
             updateTimerDisplay();
             navigateTo('focus');
             startTimer();
