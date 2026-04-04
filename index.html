@@ -137,6 +137,40 @@
         .animate-pulse-soft {
             animation: pulse-soft 2s ease-in-out infinite;
         }
+        /* Volume Slider Custom Styling */
+        #volume-slider {
+            background: rgba(51, 53, 55, 0.5);
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+        }
+        #volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #aecebe;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        #volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 8px rgba(174, 206, 190, 0.5);
+        }
+        #volume-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #aecebe;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        #volume-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 8px rgba(174, 206, 190, 0.5);
+        }
     </style>
 </head>
 <body class="bg-background text-on-background font-body min-h-screen selection:bg-primary/30 overflow-x-hidden">
@@ -305,9 +339,14 @@
                     <span id="audio-icon" class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">forest</span>
                     <span id="audio-name" class="font-label text-xs text-on-surface/80">Forest Rain</span>
                 </div>
-                <button class="hover:text-primary transition-colors pl-1 md:pl-2" onclick="toggleMute()">
-                    <span id="volume-icon" class="material-symbols-outlined text-lg">volume_up</span>
-                </button>
+                <div class="flex items-center gap-3 pl-1 md:pl-2">
+                    <button class="hover:text-primary transition-colors" onclick="toggleMute()">
+                        <span id="volume-icon" class="material-symbols-outlined text-lg">volume_up</span>
+                    </button>
+                    <input type="range" id="volume-slider" min="0" max="100" value="50" 
+                        class="w-20 md:w-24 h-1 bg-surface-container-highest/50 rounded-lg appearance-none cursor-pointer accent-primary hover:accent-primary/80 transition-all"
+                        oninput="setVolume(this.value)">
+                </div>
             </div>
         </main>
 
@@ -862,12 +901,13 @@
         const audioPlayer = new Audio();
         audioPlayer.loop = true;
         let isMuted = false;
+        let currentVolume = 0.5; // 0.0 to 1.0
 
         function playSceneryAudio() {
             const scenery = sceneries[state.selectedScenery];
             if (scenery && scenery.audio) {
                 audioPlayer.src = scenery.audio;
-                audioPlayer.volume = 0.5;
+                audioPlayer.volume = isMuted ? 0 : currentVolume;
                 if (!isMuted) {
                     audioPlayer.play().catch(err => console.log('Audio play failed:', err));
                 }
@@ -881,12 +921,38 @@
         function toggleMute() {
             isMuted = !isMuted;
             const icon = document.getElementById('volume-icon');
-            icon.textContent = isMuted ? 'volume_off' : 'volume_up';
+            const slider = document.getElementById('volume-slider');
             
             if (isMuted) {
-                audioPlayer.pause();
-            } else if (state.isRunning && state.currentView === 'focus') {
-                audioPlayer.play().catch(err => console.log('Audio play failed:', err));
+                icon.textContent = 'volume_off';
+                audioPlayer.volume = 0;
+                if (slider) slider.value = 0;
+            } else {
+                icon.textContent = currentVolume === 0 ? 'volume_off' : (currentVolume < 0.5 ? 'volume_down' : 'volume_up');
+                audioPlayer.volume = currentVolume;
+                if (slider) slider.value = Math.round(currentVolume * 100);
+                if (state.isRunning && state.currentView === 'focus') {
+                    audioPlayer.play().catch(err => console.log('Audio play failed:', err));
+                }
+            }
+        }
+
+        function setVolume(value) {
+            const volume = value / 100;
+            currentVolume = volume;
+            audioPlayer.volume = volume;
+            
+            const icon = document.getElementById('volume-icon');
+            
+            if (volume === 0) {
+                isMuted = true;
+                icon.textContent = 'volume_off';
+            } else {
+                isMuted = false;
+                icon.textContent = volume < 0.5 ? 'volume_down' : 'volume_up';
+                if (state.isRunning && state.currentView === 'focus' && audioPlayer.paused) {
+                    audioPlayer.play().catch(err => console.log('Audio play failed:', err));
+                }
             }
         }
 
